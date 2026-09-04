@@ -17,6 +17,7 @@ public class BetterAdmin {
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(TntManager.class);
         MinecraftForge.EVENT_BUS.register(VanishManager.class);
+        MinecraftForge.EVENT_BUS.register(AdminCommands.class);
     }
 
     @SubscribeEvent
