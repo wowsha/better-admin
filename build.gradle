@@ -28,6 +28,28 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+processResources {
+    def replaceProperties = [
+        minecraft_version: minecraft_version,
+        minecraft_version_range: minecraft_version_range,
+        forge_version: forge_version,
+        forge_version_range: forge_version_range,
+        loader_version_range: loader_version_range,
+        mod_id: mod_id,
+        mod_name: mod_name,
+        mod_license: mod_license,
+        mod_version: mod_version,
+        mod_authors: mod_authors,
+        description: description
+    ]
+
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties
+    }
+}
+
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 }
