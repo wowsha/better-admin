@@ -1,7 +1,6 @@
 package wowsha.betteradmin.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -12,18 +11,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.Warden;
-import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.common.MinecraftForge;
 import wowsha.betteradmin.util.TntManager;
 import wowsha.betteradmin.util.VanishManager;
 
@@ -108,7 +103,6 @@ public final class AdminCommands {
     }
 
     private static int creeper(CommandSourceStack source, ServerPlayer target) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
-        ServerPlayer admin = source.getPlayerOrException();
         ServerLevel level = target.serverLevel();
         BlockPos spawn = findHiddenSpawn(level, target);
         Creeper creeper = EntityType.CREEPER.create(level);
