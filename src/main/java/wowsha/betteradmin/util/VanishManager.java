@@ -1,5 +1,6 @@
 package wowsha.betteradmin.util;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,30 +37,36 @@ public final class VanishManager {
     }
 
     private static void broadcastHidden(ServerPlayer vanished) {
-        for (ServerPlayer viewer : vanished.server.getPlayerList().getPlayers()) {
+        var server = vanished.getServer();
+        if (server == null) return;
+        for (ServerPlayer viewer : server.getPlayerList().getPlayers()) {
             if (viewer != vanished) {
                 viewer.connection.send(new ClientboundPlayerInfoRemovePacket(Collections.singletonList(vanished.getUUID())));
             }
         }
-        vanished.server.getPlayerList().broadcastSystemMessage(
-                net.minecraft.network.chat.Component.literal(vanished.getGameProfile().getName() + " left the game"), false);
+        server.getPlayerList().broadcastSystemMessage(
+                Component.literal(vanished.getGameProfile().getName() + " left the game"), false);
     }
 
     private static void broadcastVisible(ServerPlayer vanished) {
-        for (ServerPlayer viewer : vanished.server.getPlayerList().getPlayers()) {
+        var server = vanished.getServer();
+        if (server == null) return;
+        for (ServerPlayer viewer : server.getPlayerList().getPlayers()) {
             if (viewer != vanished) {
                 viewer.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(Collections.singletonList(vanished)));
             }
         }
-        vanished.server.getPlayerList().broadcastSystemMessage(
-                net.minecraft.network.chat.Component.literal(vanished.getGameProfile().getName() + " joined the game"), false);
+        server.getPlayerList().broadcastSystemMessage(
+                Component.literal(vanished.getGameProfile().getName() + " joined the game"), false);
     }
 
     @SubscribeEvent
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer joining)) return;
+        var server = joining.getServer();
+        if (server == null) return;
         for (UUID uuid : VANISHED) {
-            ServerPlayer hidden = joining.server.getPlayerList().getPlayer(uuid);
+            ServerPlayer hidden = server.getPlayerList().getPlayer(uuid);
             if (hidden != null && hidden != joining) {
                 joining.connection.send(new ClientboundPlayerInfoRemovePacket(Collections.singletonList(hidden.getUUID())));
             }
