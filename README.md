@@ -1,6 +1,6 @@
 # Better Admin
 
-Server-side Forge 1.20.1 admin command mod.
+Server-side Forge 1.20.1 admin command mod. adds more commands to troll or something like that  if you want fork this and make this better 
 
 ## Commands
 
