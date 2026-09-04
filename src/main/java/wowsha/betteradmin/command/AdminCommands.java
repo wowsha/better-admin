@@ -35,31 +35,25 @@ public final class AdminCommands {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("lava")
-                .requires(source -> source.hasPermission(2))
                 .executes(context -> lava(context.getSource())));
 
         dispatcher.register(Commands.literal("warden")
-                .requires(source -> source.hasPermission(2))
                 .executes(context -> warden(context.getSource())));
 
         dispatcher.register(Commands.literal("creeper")
-                .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.player())
-                        .executes(context -> creeper(context.getSource(), EntityArgument.getPlayer(context, "player")))));
+                        .executes(context -> creeper(EntityArgument.getPlayer(context, "player")))));
 
         dispatcher.register(Commands.literal("rich")
-                .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(context -> rich(EntityArgument.getPlayer(context, "player")))));
 
         dispatcher.register(Commands.literal("tnt")
-                .requires(source -> source.hasPermission(2))
                 .executes(context -> tnt(context.getSource(), false))
                 .then(Commands.literal("stop")
                         .executes(context -> tnt(context.getSource(), true))));
 
         dispatcher.register(Commands.literal("vanish")
-                .requires(source -> source.hasPermission(2))
                 .executes(context -> vanish(context.getSource())));
     }
 
@@ -102,16 +96,15 @@ public final class AdminCommands {
         return 1;
     }
 
-    private static int creeper(CommandSourceStack source, ServerPlayer target) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    private static int creeper(ServerPlayer target) {
         ServerLevel level = target.serverLevel();
         BlockPos spawn = findHiddenSpawn(level, target);
         Creeper creeper = EntityType.CREEPER.create(level);
         if (creeper == null) return 0;
 
         double maxHealth = 300.0D;
-        if (creeper.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH) != null) {
-            creeper.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(maxHealth);
-        }
+        var attribute = creeper.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+        if (attribute != null) attribute.setBaseValue(maxHealth);
         creeper.setHealth((float) maxHealth);
         creeper.moveTo(spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5, target.getYRot(), 0);
         creeper.setTarget(target);
