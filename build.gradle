@@ -28,24 +28,24 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-repositories { }
-
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 }
 
-jar { manifest { attributes([
-    'Specification-Title': mod_id,
-    'Specification-Vendor': mod_authors,
-    'Specification-Version': '1',
-    'Implementation-Title': project.name,
-    'Implementation-Version': project.version,
-    'Implementation-Vendor': mod_authors
-]) } }
+jar {
+    manifest {
+        attributes([
+            'Specification-Title': mod_id,
+            'Specification-Vendor': mod_authors,
+            'Specification-Version': '1',
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': mod_authors
+        ])
+    }
+}
 
 publishing {
     publications { mavenJava(MavenPublication) { from components.java } }
     repositories { maven { url = uri(layout.buildDirectory.dir('repo')) } }
 }
-
-repositoriesMode = repositoriesMode // keep Gradle happy with settings-managed repositories
