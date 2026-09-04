@@ -40,3 +40,6 @@ jobs:
           path: build/libs/*.jar
           if-no-files-found: error
           retention-days: 14
+
+      - name: Print commit being built
+        run: git rev-parse HEAD
