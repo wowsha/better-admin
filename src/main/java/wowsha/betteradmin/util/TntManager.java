@@ -1,11 +1,15 @@
 package wowsha.betteradmin.util;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.item.TntEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -40,20 +44,18 @@ public final class TntManager {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END || timers.isEmpty()) return;
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return;
 
         int activeTnt = 0;
-        for (net.minecraft.server.MinecraftServer server : net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer() == null
-                ? java.util.List.<net.minecraft.server.MinecraftServer>of()
-                : java.util.List.of(net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer())) {
-            for (net.minecraft.world.level.Level level : server.getAllLevels()) {
-                activeTnt += (int) level.getEntitiesOfClass(TntEntity.class, level.getWorldBorder().getCollisionShape().bounds()).size();
+        for (var level : server.getAllLevels()) {
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof PrimedTnt) activeTnt++;
             }
         }
 
-        for (UUID uuid : java.util.List.copyOf(timers.keySet())) {
-            ServerPlayer player = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer() == null
-                    ? null
-                    : net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(uuid);
+        for (UUID uuid : List.copyOf(timers.keySet())) {
+            ServerPlayer player = server.getPlayerList().getPlayer(uuid);
             if (player == null) {
                 timers.remove(uuid);
                 continue;
@@ -62,7 +64,7 @@ public final class TntManager {
             int ticks = timers.getOrDefault(uuid, 0) + 1;
             if (ticks >= INTERVAL_TICKS) {
                 if (activeTnt < MAX_ACTIVE_TNT) {
-                    TntEntity tnt = new TntEntity(player.level(), player.getX(), player.getY(), player.getZ());
+                    PrimedTnt tnt = new PrimedTnt(player.level(), player.getX(), player.getY(), player.getZ(), player);
                     player.level().addFreshEntity(tnt);
                     activeTnt++;
                 }
