@@ -34,7 +34,6 @@ public class BetterAdmin {
     public void onServerStopping(ServerStoppingEvent event) {
         TntManager.stopAll();
         VanishManager.clear();
-        HackerManager.stop(event.getServer());
         ItemRainManager.stop();
         OreManager.clear();
     }
