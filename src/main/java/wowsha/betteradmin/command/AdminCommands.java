@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.StringArgumentType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -62,7 +63,13 @@ public final class AdminCommands {
         dispatcher.register(Commands.literal("hackers")
                 .executes(context -> hackers(context.getSource(), false))
                 .then(Commands.literal("stop")
-                        .executes(context -> hackers(context.getSource(), true))));
+                        .executes(context -> hackers(context.getSource(), true)))
+                .then(Commands.literal("tp")
+                        .then(Commands.argument("hacker", StringArgumentType.word())
+                                .then(Commands.argument("player", EntityArgument.player())
+                                        .executes(context -> hackerTeleport(
+                                                StringArgumentType.getString(context, "hacker"),
+                                                EntityArgument.getPlayer(context, "player")))))));
 
         dispatcher.register(Commands.literal("itemrain")
                 .executes(context -> itemrain(context.getSource(), false))
@@ -196,6 +203,10 @@ public final class AdminCommands {
         ServerPlayer player = source.getPlayerOrException();
         if (stop) HackerManager.stop(player.server); else HackerManager.start(player.server);
         return 1;
+    }
+
+    private static int hackerTeleport(String hacker, ServerPlayer destination) {
+        return HackerManager.teleport(hacker, destination) ? 1 : 0;
     }
 
     private static int itemrain(CommandSourceStack source, boolean stop) {
