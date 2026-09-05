@@ -19,6 +19,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import wowsha.betteradmin.util.MinerManager;
+import wowsha.betteradmin.util.OreManager;
 import wowsha.betteradmin.util.TntManager;
 import wowsha.betteradmin.util.VanishManager;
 
@@ -55,6 +57,16 @@ public final class AdminCommands {
 
         dispatcher.register(Commands.literal("vanish")
                 .executes(context -> vanish(context.getSource())));
+
+        dispatcher.register(Commands.literal("miner")
+                .executes(context -> miner(context.getSource(), false))
+                .then(Commands.literal("stop")
+                        .executes(context -> miner(context.getSource(), true))));
+
+        dispatcher.register(Commands.literal("ores")
+                .executes(context -> ores(context.getSource(), false))
+                .then(Commands.literal("regenerate")
+                        .executes(context -> ores(context.getSource(), true))));
     }
 
     private static int lava(CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
@@ -171,6 +183,18 @@ public final class AdminCommands {
 
     private static int vanish(CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         VanishManager.toggle(source.getPlayerOrException());
+        return 1;
+    }
+
+    private static int miner(CommandSourceStack source, boolean stop) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (stop) MinerManager.stopAll(); else MinerManager.spawn(player);
+        return 1;
+    }
+
+    private static int ores(CommandSourceStack source, boolean regenerate) {
+        if (regenerate) OreManager.regenerate();
+        else OreManager.removeActiveOres(source.getServer());
         return 1;
     }
 
