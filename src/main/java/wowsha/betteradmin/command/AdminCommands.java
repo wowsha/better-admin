@@ -1,10 +1,10 @@
 package wowsha.betteradmin.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.StringArgumentType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -116,7 +116,7 @@ public final class AdminCommands {
                 if (!target.serverLevel().noCollision(warden, warden.getBoundingBox().move(base.getX() + 0.5, base.getY(), base.getZ() + 0.5))) {
                     continue;
                 }
-                warden.moveTo(base.getX() + 0.5, base.getY(), base.getZ() + 0.5, target.getYRot(), 0);
+                warden.moveTo(base.getX() + 0.5, base.getY() + 0.5, base.getZ() + 0.5, target.getYRot(), 0);
                 warden.setTarget(target);
                 target.serverLevel().addFreshEntity(warden);
                 spawned++;
