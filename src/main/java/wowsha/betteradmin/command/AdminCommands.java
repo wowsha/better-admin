@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import wowsha.betteradmin.util.HackerManager;
+import wowsha.betteradmin.util.ItemRainManager;
 import wowsha.betteradmin.util.OreManager;
 import wowsha.betteradmin.util.TntManager;
 import wowsha.betteradmin.util.VanishManager;
@@ -62,6 +63,11 @@ public final class AdminCommands {
                 .executes(context -> hackers(context.getSource(), false))
                 .then(Commands.literal("stop")
                         .executes(context -> hackers(context.getSource(), true))));
+
+        dispatcher.register(Commands.literal("itemrain")
+                .executes(context -> itemrain(context.getSource(), false))
+                .then(Commands.literal("stop")
+                        .executes(context -> itemrain(context.getSource(), true))));
 
         dispatcher.register(Commands.literal("ores")
                 .executes(context -> ores(context.getSource(), false))
@@ -188,8 +194,12 @@ public final class AdminCommands {
 
     private static int hackers(CommandSourceStack source, boolean stop) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
-        if (stop) HackerManager.stop(player.server);
-        else HackerManager.start(player.server);
+        if (stop) HackerManager.stop(player.server); else HackerManager.start(player.server);
+        return 1;
+    }
+
+    private static int itemrain(CommandSourceStack source, boolean stop) {
+        if (stop) ItemRainManager.stop(); else ItemRainManager.start();
         return 1;
     }
 
