@@ -13,8 +13,10 @@ Server-side Forge 1.20.1 troll/chaos command mod. Fork it, modify it, redistribu
 - `/vanish` — toggles invisibility and removes the player from other clients' tab lists. Toggling on broadcasts a yellow `left the game` message; toggling off broadcasts a yellow `joined the game` message.
 - `/hackers` — spawns 5 player-like fake players with Steve-style default skins, hitboxes, yellow join messages, fast flying movement, and a stream of valuable/creative-style items around active chunks.
 - `/hackers stop` — removes the hacker NPCs and clears their persistent active state.
+- `/hackers tp <hacker> <player>` — teleports a fake hacker to a real player.
 - `/itemrain` — starts dropping 6 random in-game items at 6 random positions in every currently active chunk once per second.
 - `/itemrain stop` — stops the global item rain.
+- `/restart` — cleanly shuts down the current Java server process and relaunches it using the same Java command line.
 - `/ores` — replaces ores in up to 64 currently active/ticking chunks with stone and remembers their original states.
 - `/ores regenerate` — restores the ore blocks removed by `/ores`.
 
