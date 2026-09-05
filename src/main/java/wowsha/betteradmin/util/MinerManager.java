@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
@@ -43,7 +42,7 @@ public final class MinerManager {
             miner.setInvulnerable(true);
             miner.setItemInHand(InteractionHand.MAIN_HAND, Items.NETHERITE_PICKAXE.getDefaultInstance());
             owner.serverLevel().addFreshEntity(miner);
-            MINERS.add(new Miner(miner, owner.serverLevel()));
+            MINERS.add(new Miner(miner));
             TARGET_TIMERS.put(miner.getUUID(), TARGET_RESCAN_TICKS);
         }
     }
@@ -63,8 +62,7 @@ public final class MinerManager {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server == null) return;
 
-        boolean allScannedThisTick = true;
-        boolean anyFound = false;
+        boolean anyOre = false;
         for (Miner miner : List.copyOf(MINERS)) {
             FakePlayer player = miner.player;
             if (player.isRemoved()) {
@@ -74,31 +72,22 @@ public final class MinerManager {
 
             boolean seen = isSeenByPlayer(player, server);
             player.setInvisible(seen);
-            if (seen) {
-                allScannedThisTick = false;
-                continue;
-            }
+            if (seen) continue;
 
-            int timer = TARGET_TIMERS.getOrDefault(player.getUUID(), 0) + 1;
+            int timer = TARGET_TIMERS.getOrDefault(player.getUUID(), TARGET_RESCAN_TICKS) + 1;
             if (timer >= TARGET_RESCAN_TICKS || !isValidTarget(player, TARGETS.get(player.getUUID()))) {
-                BlockPos found = findNearestOre(player);
-                if (found == null) {
-                    TARGETS.remove(player.getUUID());
-                } else {
-                    TARGETS.put(player.getUUID(), found);
-                    anyFound = true;
-                }
+                TARGETS.put(player.getUUID(), findNearestOre(player));
                 timer = 0;
-            } else if (TARGETS.containsKey(player.getUUID())) {
-                anyFound = true;
-                allScannedThisTick = false;
-            } else {
-                allScannedThisTick = false;
             }
             TARGET_TIMERS.put(player.getUUID(), timer);
 
             BlockPos target = TARGETS.get(player.getUUID());
-            if (target == null || !isValidTarget(player, target)) continue;
+            if (target == null) continue;
+            if (!isValidTarget(player, target)) {
+                TARGETS.remove(player.getUUID());
+                continue;
+            }
+            anyOre = true;
 
             double dx = target.getX() + 0.5D - player.getX();
             double dy = target.getY() + 0.5D - player.getY();
@@ -121,12 +110,21 @@ public final class MinerManager {
             player.move(MoverType.SELF, new Vec3(vx, vy, vz));
         }
 
-        if (!MINERS.isEmpty() && allScannedThisTick && !anyFound) stopAll();
+        if (!MINERS.isEmpty() && !anyOre) {
+            boolean searching = false;
+            for (Miner miner : MINERS) {
+                if (findNearestOre(miner.player) != null) {
+                    searching = true;
+                    break;
+                }
+            }
+            if (!searching) stopAll();
+        }
     }
 
     private static void mine(FakePlayer miner, BlockPos pos) {
         BlockState state = miner.serverLevel().getBlockState(pos);
-        if (!state.is(BlockTags.ORES)) return;
+        if (!OreManager.isOre(state)) return;
         miner.swing(InteractionHand.MAIN_HAND);
         miner.serverLevel().destroyBlock(pos, true, miner);
     }
@@ -149,7 +147,7 @@ public final class MinerManager {
                     for (int z = minZ; z < minZ + 16; z++) {
                         for (int y = level.getMinBuildHeight(); y < level.getMaxBuildHeight(); y++) {
                             BlockPos pos = new BlockPos(x, y, z);
-                            if (!level.getBlockState(pos).is(BlockTags.ORES)) continue;
+                            if (!OreManager.isOre(level.getBlockState(pos))) continue;
                             double dist = pos.distSqr(center);
                             if (dist < bestDistance) {
                                 bestDistance = dist;
@@ -164,7 +162,8 @@ public final class MinerManager {
     }
 
     private static boolean isValidTarget(FakePlayer miner, BlockPos target) {
-        return target != null && miner.serverLevel().hasChunkAt(target) && miner.serverLevel().getBlockState(target).is(BlockTags.ORES);
+        return target != null && miner.serverLevel().hasChunkAt(target)
+                && OreManager.isOre(miner.serverLevel().getBlockState(target));
     }
 
     private static boolean isSeenByPlayer(Entity miner, MinecraftServer server) {
@@ -182,5 +181,5 @@ public final class MinerManager {
         TARGET_TIMERS.remove(miner.player.getUUID());
     }
 
-    private record Miner(FakePlayer player, ServerLevel level) {}
+    private record Miner(FakePlayer player) {}
 }
