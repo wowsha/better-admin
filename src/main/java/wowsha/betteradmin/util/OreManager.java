@@ -17,7 +17,6 @@ public final class OreManager {
     private OreManager() {}
 
     public static void removeActiveOres(MinecraftServer server) {
-        ORIGINAL_ORES.clear();
         for (LevelChunk chunk : ActiveChunkUtil.collect(server)) {
             ServerLevel level = chunk.getLevel();
             int minX = chunk.getPos().getMinBlockX();
@@ -39,6 +38,7 @@ public final class OreManager {
     public static void regenerate() {
         for (Snapshot snapshot : List.copyOf(ORIGINAL_ORES)) {
             if (!snapshot.level.hasChunkAt(snapshot.pos)) continue;
+            if (!snapshot.level.getBlockState(snapshot.pos).is(Blocks.STONE)) continue;
             snapshot.level.setBlockAndUpdate(snapshot.pos, snapshot.state);
         }
         ORIGINAL_ORES.clear();
