@@ -30,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.5'
 
-      - name: Build JAR
+      - name: Build server-side JAR
         run: gradle --no-daemon build
 
       - name: Upload server-side mod JAR
@@ -38,6 +38,17 @@ jobs:
         with:
           name: troll-commands-server
           path: build/libs/*.jar
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Build client-side JAR
+        run: gradle --no-daemon -p client build
+
+      - name: Upload client-side mod JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: troll-commands-client
+          path: client/build/libs/*.jar
           if-no-files-found: error
           retention-days: 14
 
