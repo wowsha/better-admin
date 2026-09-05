@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -82,8 +83,9 @@ public final class HackerManager {
             }
 
             player.setNoGravity(true);
-            player.abilities.mayfly = true;
-            player.abilities.flying = true;
+            Abilities abilities = player.getAbilities();
+            abilities.mayfly = true;
+            abilities.flying = true;
         }
 
         dropTimer++;
@@ -114,9 +116,10 @@ public final class HackerManager {
             hacker.setNoGravity(true);
             hacker.setSilent(true);
             hacker.setInvulnerable(true);
-            hacker.abilities.mayfly = true;
-            hacker.abilities.flying = true;
-            hacker.abilities.setFlyingSpeed(0.35F);
+            Abilities abilities = hacker.getAbilities();
+            abilities.mayfly = true;
+            abilities.flying = true;
+            abilities.setFlyingSpeed(0.35F);
             chunk.level.addFreshEntity(hacker);
             HACKERS.add(new Hacker(hacker));
         }
@@ -217,7 +220,7 @@ public final class HackerManager {
     private static List<ChunkRef> activeChunks(MinecraftServer server) {
         List<ChunkRef> result = new ArrayList<>();
         for (var chunk : ActiveChunkUtil.collect(server)) {
-            result.add(new ChunkRef(chunk.getLevel(), new ChunkPos(chunk.getPos())));
+            result.add(new ChunkRef(chunk.getLevel(), chunk.getPos()));
         }
         return result;
     }
