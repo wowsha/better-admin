@@ -220,7 +220,9 @@ public final class HackerManager {
     private static List<ChunkRef> activeChunks(MinecraftServer server) {
         List<ChunkRef> result = new ArrayList<>();
         for (var chunk : ActiveChunkUtil.collect(server)) {
-            result.add(new ChunkRef(chunk.getLevel(), chunk.getPos()));
+            if (chunk.getLevel() instanceof ServerLevel level) {
+                result.add(new ChunkRef(level, chunk.getPos()));
+            }
         }
         return result;
     }
