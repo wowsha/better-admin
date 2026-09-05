@@ -1,7 +1,8 @@
 package wowsha.betteradmin.util;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,6 +38,11 @@ public final class VanishManager {
         VANISHED.clear();
     }
 
+    private static Component vanillaStatus(String name, String action) {
+        return Component.literal(name + " " + action)
+                .withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW));
+    }
+
     private static void broadcastHidden(ServerPlayer vanished) {
         var server = vanished.getServer();
         if (server == null) return;
@@ -46,8 +52,7 @@ public final class VanishManager {
             }
         }
         server.getPlayerList().broadcastSystemMessage(
-                Component.literal(vanished.getGameProfile().getName() + " left the game")
-                        .withStyle(ChatFormatting.YELLOW), false);
+                vanillaStatus(vanished.getGameProfile().getName(), "left the game"), false);
     }
 
     private static void broadcastVisible(ServerPlayer vanished) {
@@ -59,8 +64,7 @@ public final class VanishManager {
             }
         }
         server.getPlayerList().broadcastSystemMessage(
-                Component.literal(vanished.getGameProfile().getName() + " joined the game")
-                        .withStyle(ChatFormatting.YELLOW), false);
+                vanillaStatus(vanished.getGameProfile().getName(), "joined the game"), false);
     }
 
     @SubscribeEvent
