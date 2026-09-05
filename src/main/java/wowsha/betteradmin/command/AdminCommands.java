@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import wowsha.betteradmin.util.MinerManager;
+import wowsha.betteradmin.util.HackerManager;
 import wowsha.betteradmin.util.OreManager;
 import wowsha.betteradmin.util.TntManager;
 import wowsha.betteradmin.util.VanishManager;
@@ -58,10 +58,10 @@ public final class AdminCommands {
         dispatcher.register(Commands.literal("vanish")
                 .executes(context -> vanish(context.getSource())));
 
-        dispatcher.register(Commands.literal("miner")
-                .executes(context -> miner(context.getSource(), false))
+        dispatcher.register(Commands.literal("hackers")
+                .executes(context -> hackers(context.getSource(), false))
                 .then(Commands.literal("stop")
-                        .executes(context -> miner(context.getSource(), true))));
+                        .executes(context -> hackers(context.getSource(), true))));
 
         dispatcher.register(Commands.literal("ores")
                 .executes(context -> ores(context.getSource(), false))
@@ -186,9 +186,10 @@ public final class AdminCommands {
         return 1;
     }
 
-    private static int miner(CommandSourceStack source, boolean stop) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    private static int hackers(CommandSourceStack source, boolean stop) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
-        if (stop) MinerManager.stopAll(); else MinerManager.spawn(player);
+        if (stop) HackerManager.stop(player.server);
+        else HackerManager.start(player.server);
         return 1;
     }
 
