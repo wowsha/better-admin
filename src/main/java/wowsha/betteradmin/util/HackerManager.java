@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -49,6 +50,25 @@ public final class HackerManager {
     public static void stop(MinecraftServer server) {
         persist(server, false);
         removeAll(server);
+    }
+
+    public static boolean teleport(String name, ServerPlayer destination) {
+        for (Hacker hacker : HACKERS) {
+            FakePlayer player = hacker.player;
+            if (player.getGameProfile().getName().equalsIgnoreCase(name)) {
+                player.teleportTo(destination.serverLevel(), destination.getX(), destination.getY(), destination.getZ(),
+                        destination.getYRot(), destination.getXRot());
+                player.setDeltaMovement(0.0D, 0.0D, 0.0D);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static List<String> names() {
+        List<String> names = new ArrayList<>();
+        for (Hacker hacker : HACKERS) names.add(hacker.player.getGameProfile().getName());
+        return names;
     }
 
     @SubscribeEvent
@@ -91,7 +111,9 @@ public final class HackerManager {
         dropTimer++;
         if (dropTimer >= DROP_INTERVAL) {
             dropTimer = 0;
-            for (int i = 0; i < 2; i++) dropLoot(active, server);
+            for (ChunkRef chunk : active) {
+                dropLoot(chunk, server);
+            }
         }
     }
 
@@ -171,15 +193,19 @@ public final class HackerManager {
         double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (length <= 0.001D) return;
 
-        player.setDeltaMovement(dx / length * FLY_SPEED, dy / length * FLY_SPEED, dz / length * FLY_SPEED);
+        double vx = dx / length * FLY_SPEED;
+        double vy = dy / length * FLY_SPEED;
+        double vz = dz / length * FLY_SPEED;
+        player.setDeltaMovement(vx, vy, vz);
+        player.move(MoverType.SELF, player.getDeltaMovement());
+        player.setDeltaMovement(0.0D, 0.0D, 0.0D);
         player.hurtMarked = true;
         player.setYRot((float) Math.toDegrees(Math.atan2(-dx, dz)));
         player.setXRot((float) Math.toDegrees(Math.atan2(-dy, Math.sqrt(dx * dx + dz * dz))));
     }
 
-    private static void dropLoot(List<ChunkRef> active, MinecraftServer server) {
+    private static void dropLoot(ChunkRef chunk, MinecraftServer server) {
         if (countItemEntities(server) >= MAX_ITEM_ENTITIES) return;
-        ChunkRef chunk = active.get(RANDOM.nextInt(active.size()));
         int x = chunk.pos.getMinBlockX() + RANDOM.nextInt(16);
         int z = chunk.pos.getMinBlockZ() + RANDOM.nextInt(16);
         int y = chunk.level.getHeightmapPos(
@@ -259,6 +285,7 @@ public final class HackerManager {
                 net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
                 new net.minecraft.core.BlockPos((int) x, 0, (int) z)).getY() + 8;
         player.teleportTo(chunk.level, x, y, z, player.getYRot(), player.getXRot());
+        player.setDeltaMovement(0.0D, 0.0D, 0.0D);
     }
 
     private static Path stateFile(MinecraftServer server) {
