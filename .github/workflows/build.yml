@@ -1,4 +1,4 @@
-name: Build Better Admin
+name: Build Troll Commands
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
       - name: Upload server-side mod JAR
         uses: actions/upload-artifact@v4
         with:
-          name: better-admin-server
+          name: troll-commands-server
           path: build/libs/*.jar
           if-no-files-found: error
           retention-days: 14
