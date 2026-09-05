@@ -6,7 +6,7 @@ import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import wowsha.betteradmin.command.AdminCommands;
-import wowsha.betteradmin.util.MinerManager;
+import wowsha.betteradmin.util.HackerManager;
 import wowsha.betteradmin.util.OreManager;
 import wowsha.betteradmin.util.TntManager;
 import wowsha.betteradmin.util.VanishManager;
@@ -20,7 +20,7 @@ public class BetterAdmin {
         MinecraftForge.EVENT_BUS.register(TntManager.class);
         MinecraftForge.EVENT_BUS.register(VanishManager.class);
         MinecraftForge.EVENT_BUS.register(AdminCommands.class);
-        MinecraftForge.EVENT_BUS.register(MinerManager.class);
+        MinecraftForge.EVENT_BUS.register(HackerManager.class);
     }
 
     @SubscribeEvent
@@ -32,7 +32,6 @@ public class BetterAdmin {
     public void onServerStopping(ServerStoppingEvent event) {
         TntManager.stopAll();
         VanishManager.clear();
-        MinerManager.stopAll();
         OreManager.clear();
     }
 }
