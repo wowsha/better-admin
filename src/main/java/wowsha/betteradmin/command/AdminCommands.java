@@ -23,6 +23,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import wowsha.betteradmin.util.HackerManager;
 import wowsha.betteradmin.util.ItemRainManager;
 import wowsha.betteradmin.util.OreManager;
+import wowsha.betteradmin.util.RestartManager;
 import wowsha.betteradmin.util.TntManager;
 import wowsha.betteradmin.util.VanishManager;
 
@@ -75,6 +76,9 @@ public final class AdminCommands {
                 .executes(context -> itemrain(context.getSource(), false))
                 .then(Commands.literal("stop")
                         .executes(context -> itemrain(context.getSource(), true))));
+
+        dispatcher.register(Commands.literal("restart")
+                .executes(context -> restart(context.getSource())));
 
         dispatcher.register(Commands.literal("ores")
                 .executes(context -> ores(context.getSource(), false))
@@ -211,6 +215,11 @@ public final class AdminCommands {
 
     private static int itemrain(CommandSourceStack source, boolean stop) {
         if (stop) ItemRainManager.stop(); else ItemRainManager.start();
+        return 1;
+    }
+
+    private static int restart(CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        RestartManager.restart(source.getServer());
         return 1;
     }
 
