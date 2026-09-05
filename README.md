@@ -13,12 +13,14 @@ Server-side Forge 1.20.1 troll/chaos command mod. Fork it, modify it, redistribu
 - `/vanish` — toggles invisibility and removes the player from other clients' tab lists. Toggling on broadcasts a yellow `left the game` message; toggling off broadcasts a yellow `joined the game` message.
 - `/hackers` — spawns 5 player-like fake players with Steve-style default skins, hitboxes, yellow join messages, fast flying movement, and a stream of valuable/creative-style items around active chunks.
 - `/hackers stop` — removes the hacker NPCs and clears their persistent active state.
+- `/itemrain` — starts dropping 6 random in-game items at 6 random positions in every currently active chunk once per second.
+- `/itemrain stop` — stops the global item rain.
 - `/ores` — replaces ores in up to 64 currently active/ticking chunks with stone and remembers their original states.
 - `/ores regenerate` — restores the ore blocks removed by `/ores`.
 
 Commands do not require operator permission and intentionally produce no command feedback.
 
-The repeating TNT system has a global active-entity cap and the Warden command is bounded to avoid accidentally overwhelming the server. Ore operations and hacker item drops are restricted to bounded active chunks and capped entity counts.
+The repeating TNT system has a global active-entity cap and the Warden command is bounded to avoid accidentally overwhelming the server. Ore operations, hacker item drops, and item rain are restricted to bounded active chunks and capped entity counts.
 
 `/hackers` persists its enabled state in the world so the hackers are recreated after a server restart until `/hackers stop` is used.
 
