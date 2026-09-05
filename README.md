@@ -2,34 +2,32 @@
 
 Server-side Forge 1.20.1 troll/chaos command mod. Fork it, modify it, redistribute it, or do whatever you want with it.
 
-## Commands
+## Server mod
 
-- `/lava` — fills the executor's current 16x16 chunk at the dimension's top build level with lava source blocks.
-- `/warden` — spawns up to 5 Wardens near each online player.
-- `/creeper <player>` — spawns a normal Creeper with 300 max health, hidden nearby when possible, and keeps it focused on the selected player. The hunter can break nearby non-bedrock obstructions when it loses line of sight.
-- `/rich <player>` — equips full Netherite armor, puts a Totem of Undying in the off-hand, adds two more Totems, and adds a full set of Netherite tools.
-- `/tnt` — toggles a TNT spawn at the executor's position every 4 seconds.
-- `/tnt stop` — stops the executor's repeating TNT.
-- `/vanish` — toggles invisibility and removes the player from other clients' tab lists. Toggling on broadcasts a yellow `left the game` message; toggling off broadcasts a yellow `joined the game` message.
-- `/hackers` — spawns 5 player-like fake players with Steve-style default skins, hitboxes, yellow join messages, fast flying movement, and a stream of valuable/creative-style items around active chunks.
-- `/hackers stop` — removes the hacker NPCs and clears their persistent active state.
-- `/hackers tp <hacker> <player>` — teleports a fake hacker to a real player.
-- `/itemrain` — starts dropping 6 random in-game items at 6 random positions in every currently active chunk once per second.
-- `/itemrain stop` — stops the global item rain.
-- `/restart` — cleanly shuts down the current Java server process and relaunches it using the same Java command line.
-- `/ores` — replaces ores in up to 64 currently active/ticking chunks with stone and remembers their original states.
-- `/ores regenerate` — restores the ore blocks removed by `/ores`.
+The server-side mod provides the full Troll Commands toolkit. Players do not need the mod installed on their clients.
 
-Commands do not require operator permission and intentionally produce no command feedback.
+## Client mod
 
-The repeating TNT system has a global active-entity cap and the Warden command is bounded to avoid accidentally overwhelming the server. Ore operations, hacker item drops, and item rain are restricted to bounded active chunks and capped entity counts.
+`client/` contains a separate Forge 1.20.1 client-side mod named **Troll Commands Client**. It does **not** require the server-side Troll Commands mod. It adds local shortcuts that translate into vanilla server commands, so the player must have operator permission for the server to accept the commands.
 
-`/hackers` persists its enabled state in the world so the hackers are recreated after a server restart until `/hackers stop` is used.
+The client mod can approximate these server-side commands with vanilla commands:
 
-## Server-side
+- `/lava` — fills the current 16x16 chunk at the dimension's top build level with lava source blocks. Overworld/End use Y 319; Nether uses Y 127.
+- `/warden` — summons 5 Wardens around every online player using `execute as @a at @s`.
+- `/creeper <player>` — summons a Creeper near the target with 300 max health. Vanilla commands cannot reproduce the server mod's hidden hunter targeting/obstruction-breaking behavior exactly.
+- `/rich <player>` — equips Netherite armor, a Totem in the off-hand, two more Totems, and Netherite tools using `/item` and `/give`.
+- `/tnt` — toggles a repeating TNT summon at the executing player's position every 4 seconds.
+- `/tnt stop` — stops the client-side TNT loop.
+- `/vanish` — toggles a long invisibility effect. Vanilla commands cannot remove the player from the tab list like the server mod does.
+- `/vanish stop` — clears the client-side invisibility effect.
+- `/itemrain` — every second, runs 6 random item summons for every online player, giving an approximation of item rain across player-active chunks.
+- `/itemrain stop` — stops the client-side item rain.
+- `/restart` — runs `save-all flush` followed by the vanilla `stop` command. A real automatic reboot requires the server host/panel/wrapper to restart the server process after it stops.
 
-Troll Commands is intended to run on the server. Players do not need the mod installed on their clients.
+The client mod intentionally does not implement `/hackers` because vanilla commands cannot create the fake-player entities used by the server mod. `/ores` regeneration is also not reproduced because the server mod keeps an exact server-side snapshot of removed ore blocks.
+
+All client commands check for permission level 2 before doing anything. This is a client-side convenience check; the server still decides whether the submitted vanilla command is allowed.
 
 ## Building
 
-GitHub Actions builds the mod automatically and uploads the server-side JAR as a workflow artifact.
+GitHub Actions builds both JARs and uploads them as separate workflow artifacts: `troll-commands-server` and `troll-commands-client`.
